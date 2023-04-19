@@ -50,45 +50,4 @@ class Cep2Controller:
 
         print(
             f"zigbee2mqtt event received on topic {message.topic}: {message.data}")
-
-        # If the message is not a device event, then don't do anything.
-        if message.type_ != Cep2Zigbee2mqttMessageType.DEVICE_EVENT:
-            return
-
-        # Parse the topic to retreive the device ID. If the topic only has one level, don't do
-        # anything.
-        tokens = message.topic.split("/")
-        if len(tokens) <= 1:
-            return
-
-        # Retrieve the device ID from the topic.
-        device_id = tokens[1]
-
-        # If the device ID is known, then process the device event and send a message to the remote
-        # web server.
-        device = self.__devices_model.find(device_id)
-
-        if device:
-            try:
-                occupancy = message.event["occupancy"]
-            except KeyError:
-                pass
-            else:
-                # Based on the value of occupancy, change the state of the actuators to ON
-                # (occupancy is true, i.e. a person is present in the room) or OFF.
-                new_state = "ON" if occupancy else "OFF"
-
-                # Change the state on all actuators, i.e. LEDs and power plugs.
-                for a in self.__devices_model.actuators_list:
-                    self.__z2m_client.change_state(a.id_, new_state)
-
-                # Register event in the remote web server.
-                web_event = Cep2WebDeviceEvent(device_id=device.id_,
-                                               device_type=device.type_,
-                                               measurement=occupancy)
-
-                client = Cep2WebClient(self.HTTP_HOST)
-                try:
-                    client.send_event(web_event.to_json())
-                except ConnectionError as ex:
-                    print(f"{ex}")
+            return 
