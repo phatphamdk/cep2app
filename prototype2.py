@@ -9,7 +9,7 @@ LED_TOPIC = "zigbee2mqtt/Lampe/set"
 
 # Constants for motion sensor
 MOTION_TOPIC = "zigbee2mqtt/MotionSensor"
-MOTION_ILLUMINANCE_THRESHOLD = 100
+MOTION_ILLUMINANCE_THRESHOLD = 50
 
 # Constants for stove turn off timer
 STOVE_TURN_OFF_TIME = 15 # in seconds, 20 minutes=1200
@@ -38,6 +38,8 @@ def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
     client.subscribe(MOTION_TOPIC)
     client.subscribe(POWERPLUG_STATE_TOPIC)
+    client.publish(LED_TOPIC, '{"state": "OFF"}')
+
 
 def on_message(client, userdata, msg):
     global stove_turned_on, stove_turned_on_timestamp, user_in_kitchen, user_in_other_room, last_motion_value, last_seen_in_kitchen, last_time_sensor_check, motion_value, lights_on
@@ -56,11 +58,11 @@ def on_message(client, userdata, msg):
         data = json.loads(msg.payload)  
         illuminance_array.append(data["illuminance"])
 
-        if time.time() >= last_time_sensor_check + 60:
+        if time.time() >= last_time_sensor_check + 10:
             motion_value = Average(illuminance_array)
             if last_motion_value == 0:
                 last_motion_value = motion_value
-                
+
             if abs(motion_value - last_motion_value) > MOTION_ILLUMINANCE_THRESHOLD:
                 user_in_kitchen = False
                 print("User in other room")
