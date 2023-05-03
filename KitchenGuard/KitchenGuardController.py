@@ -2,19 +2,6 @@ import paho.mqtt.client as mqtt
 import json
 import time
 
-# MQTT topics for powerplug and LED light
-POWERPLUG_TOPIC = "zigbee2mqtt/StorPowerPlug/set"
-POWERPLUG_STATE_TOPIC = "zigbee2mqtt/StorPowerPlug"
-LED_TOPIC = "zigbee2mqtt/Lampe/set"
-
-# Constants for motion sensor
-MOTION_TOPIC = "zigbee2mqtt/MotionSensor"
-MOTION_ILLUMINANCE_THRESHOLD = 50
-
-# Constants for stove turn off timer
-STOVE_TURN_OFF_TIME = 15 # in seconds, 20 minutes=1200
-POWER_THRESHOLD = 20 # in watts
-
 def Average(lst):
     return sum(lst) / len(lst)
 
@@ -90,10 +77,6 @@ def on_message(client, userdata, msg):
         client.publish(LED_TOPIC, '{"state": "OFF"}')
         lights_on = False
         print("User back in kitchen and lights disabled")
-
-
-
-    
 
 # MQTT client setup
 client = mqtt.Client()
