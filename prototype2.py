@@ -9,7 +9,7 @@ LED_TOPIC = "zigbee2mqtt/Lampe/set"
 
 # Constants for motion sensor
 MOTION_TOPIC = "zigbee2mqtt/MotionSensor"
-MOTION_ILLUMINANCE_THRESHOLD = 100
+MOTION_ILLUMINANCE_THRESHOLD = 50
 
 # Constants for stove turn off timer
 STOVE_TURN_OFF_TIME = 15 # in seconds, 20 minutes=1200
@@ -21,7 +21,7 @@ def Average(lst):
 # Global variables
 stove_turned_on = False
 stove_turned_on_timestamp = 0
-user_in_kitchen = False
+user_in_kitchen = True
 user_in_other_room = False
 motion_value = 0
 last_motion_value = 0
@@ -38,39 +38,41 @@ def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
     client.subscribe(MOTION_TOPIC)
     client.subscribe(POWERPLUG_STATE_TOPIC)
+    client.publish(LED_TOPIC, '{"state": "OFF"}')
+    client.publish(POWERPLUG_TOPIC, '{"state": "ON"}')
+
 
 def on_message(client, userdata, msg):
     global stove_turned_on, stove_turned_on_timestamp, user_in_kitchen, user_in_other_room, last_motion_value, last_seen_in_kitchen, last_time_sensor_check, motion_value, lights_on
 
     if msg.topic == POWERPLUG_STATE_TOPIC:
         data = json.loads(msg.payload)
-        if data["power"] > POWER_THRESHOLD:
+        if data["power"] > POWER_THRESHOLD and stove_turned_on == False:
             stove_turned_on = True
             stove_turned_on_timestamp = time.time()
-            #client.publish(LED_TOPIC, '{"state": "ON"}')
-            if user_in_kitchen:
-                 last_seen_in_kitchen = stove_turned_on_timestamp
             print("Stove turned on")
 
     if msg.topic == MOTION_TOPIC:
         data = json.loads(msg.payload)  
         illuminance_array.append(data["illuminance"])
 
-        if time.time() >= last_time_sensor_check + 60:
+        if time.time() >= last_time_sensor_check + 10:
             motion_value = Average(illuminance_array)
             if last_motion_value == 0:
                 last_motion_value = motion_value
-                
+            print(illuminance_array)
+            print(motion_value)
+            illuminance_array.clear()
             if abs(motion_value - last_motion_value) > MOTION_ILLUMINANCE_THRESHOLD:
                 user_in_kitchen = False
+                user_in_other_room = True
                 print("User in other room")
-                last_time_sensor_check = time.time()
             else:
                 user_in_other_room = False
                 user_in_kitchen = True
                 print("User in kitchen ")
-                last_time_sensor_check = time.time()
-            
+                stove_turned_on_timestamp = time.time()
+            last_time_sensor_check = time.time()
             last_motion_value = motion_value
 
     # Check if stove has been on for more than 20 minutes and user is not in kitchen
@@ -82,11 +84,13 @@ def on_message(client, userdata, msg):
             stove_turned_on = False
             lights_on = True
             print("Stove on and user away for more than 20 minutes, stove turned off")
+            time.sleep(5)
     
     if user_in_kitchen and lights_on == True:
         client.publish(LED_TOPIC, '{"state": "OFF"}')
         lights_on = False
         print("User back in kitchen and lights disabled")
+
 
 
     
