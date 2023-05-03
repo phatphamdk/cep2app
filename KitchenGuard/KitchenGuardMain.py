@@ -1,6 +1,5 @@
-from Cep2Controller import Cep2Controller
-
-controller = Cep2Controller
-controller.start()
+#from KitchenGuardController import ctl
+#from KitchenGuardZ2M import kgz2m
+#from KitchenGuardWebClient import kgweb
 
 

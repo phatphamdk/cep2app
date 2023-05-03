@@ -75,7 +75,7 @@ def on_message(client, userdata, msg):
 
     # Check if stove has been on for more than 20 minutes and user is not in kitchen
     if stove_turned_on:
-        if (time.time() - stove_turned_on_timestamp > STOVE_TURN_OFF_TIME and user_in_kitchen == False):
+        if (time.time() - last_seen_in_kitchen > STOVE_TURN_OFF_TIME and user_in_kitchen == False):
             # Turn off stove and turn on LED light
             client.publish(POWERPLUG_TOPIC, '{"state": "OFF"}')
             client.publish(LED_TOPIC, '{"state": "ON"}')
