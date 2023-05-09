@@ -34,9 +34,6 @@ client = mqtt.Client()
 
 class ctl:
 
-    def Average(lst):
-        return sum(lst) / len(lst)
-
     def stove_status(data):
         global stove_turned_on, stove_turned_on_timestamp, stove_aborted
         
