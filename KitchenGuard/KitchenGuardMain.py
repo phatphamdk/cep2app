@@ -1,7 +1,7 @@
-from KitchenGuardController import kgz2m
+from KitchenGuardZ2M_Controller import KitchenGuardZ2M
 
 # Start MQTT client and loop, which may activate controller
-kgz2m.start()
+KitchenGuardZ2M.start()
 
 
 

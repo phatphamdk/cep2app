@@ -39,7 +39,7 @@ last_seen_in_kitchen = 0
 
 client = mqtt.Client()
 
-class ctl:
+class KitchenGuardController:
 
     def stove_status(data):
         global stove_turned_on, stove_turned_on_timestamp, stove_aborted
@@ -141,7 +141,7 @@ class ctl:
             light_on = False
             print("User back in kitchen and lights disabled")
 
-class kgz2m:
+class KitchenGuardZ2M:
 
      # MQTT client callbacks
     def on_connect(client, userdata, flags, rc):
@@ -162,29 +162,29 @@ class kgz2m:
         data = json.loads(msg.payload)
 
         if msg.topic == POWERPLUG_STATE_TOPIC:
-            ctl.stove_status(data)
+            KitchenGuardController.stove_status(data)
 
         if msg.topic == MOTION_TOPIC_1:
             if data["occupancy"] == True:
-                ctl.user_location(1)
+                KitchenGuardController.user_location(1)
 
         if msg.topic == MOTION_TOPIC_2:
             if data["occupancy"] == True:
-                ctl.user_location(2)
+                KitchenGuardController.user_location(2)
 
         if msg.topic == MOTION_TOPIC_3:
             if data["occupancy"] == True:
-                ctl.user_location(3)
+                KitchenGuardController.user_location(3)
         
         if msg.topic == MOTION_TOPIC_4:
             if data["occupancy"] == True:
-                ctl.user_location(4)
+                KitchenGuardController.user_location(4)
 
         if msg.topic == MOTION_TOPIC_KITCHEN:
             if data["occupancy"] == True:
-                ctl.user_location(5)
+                KitchenGuardController.user_location(5)
 
-        ctl.safety_controller()
+        KitchenGuardController.safety_controller()
 
 
     # MQTT client setup
