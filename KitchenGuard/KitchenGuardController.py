@@ -8,6 +8,9 @@ POWERPLUG_STATE_TOPIC = "zigbee2mqtt/StorPowerPlug"
 LED_TOPIC = "zigbee2mqtt/Lampe/set"
 MOTION_TOPIC_1 = "zigbee2mqtt/MotionSensor2"
 MOTION_TOPIC_2 = "zigbee2mqtt/MotionSensor"
+MOTION_TOPIC_3 = "zigbee2mqtt/MotionSensor3"
+MOTION_TOPIC_4 = "zigbee2mqtt/MotionSensor4"
+MOTION_TOPIC_5 = "zigbee2mqtt/MotionSensor5"
 
 # Constants for motion sensor
 MOTION_ILLUMINANCE_THRESHOLD = 50
@@ -21,14 +24,10 @@ stove_turned_on = False
 stove_turned_on_timestamp = 0
 user_in_kitchen = True
 user_in_room1 = False
-motion_value = 0
-last_motion_value = 0
-last_seen_in_kitchen = 0
-last_time_sensor_check = 0
+user_in_room2 = False
+user_in_room3 = False
+user_in_room4 = False
 lights_on = False
-illu_diff = 0
-last_illu = 0
-illuminance_array = []
 stove_aborted = False
 
 client = mqtt.Client()
@@ -39,7 +38,7 @@ class ctl:
         return sum(lst) / len(lst)
 
     def stove_status(data):
-        global stove_turned_on, stove_turned_on_timestamp
+        global stove_turned_on, stove_turned_on_timestamp, stove_aborted
         
         if stove_aborted == False:
             if data["power"] > POWER_THRESHOLD and stove_turned_on == False:
@@ -48,24 +47,55 @@ class ctl:
                 print("Stove turned on")
 
 
-    def kitchen_location():
-        global user_in_kitchen, user_in_room1, stove_turned_on_timestamp
+    def user_location(room):
+        global user_in_kitchen, user_in_room1, user_in_room2, user_in_room3, user_in_room4, stove_turned_on_timestamp
 
-        user_in_kitchen = True
-        user_in_room1 = False
+        if room == 1:
+            user_in_room1 = True
+            user_in_room2 = False
+            user_in_room3 = False
+            user_in_room4 = False
+            user_in_kitchen = False
+            print("User in Room 1")
 
-        print("User in kitchen")
-        stove_turned_on_timestamp = time.time()
+        if room == 2:
+            user_in_room1 = False
+            user_in_room2 = True
+            user_in_room3 = False
+            user_in_room4 = False
+            user_in_kitchen = False
+            print("User in Room 2")
 
-    def room1_location():
-        global user_in_kitchen, user_in_room1
-        user_in_kitchen = False
-        user_in_room1 = True
-        print("User in Room 1")
+        if room == 3:
+            user_in_room1 = False
+            user_in_room2 = False
+            user_in_room3 = True
+            user_in_room4 = False
+            user_in_kitchen = False
+            print("User in Room 3")
+
+        if room == 4:
+            user_in_room1 = False
+            user_in_room2 = False
+            user_in_room3 = False
+            user_in_room4 = True
+            user_in_kitchen = False
+            print("User in Room 4")
+
+        if room == 5:
+            user_in_room1 = False
+            user_in_room2 = False
+            user_in_room3 = False
+            user_in_room4 = False
+            user_in_kitchen = True
+
+            print("User in kitchen")
+            stove_turned_on_timestamp = time.time()
+
 
     # client, userdata
     def safety_controller():
-        global stove_turned_on, stove_turned_on_timestamp, user_in_kitchen, user_in_room1, last_motion_value, last_seen_in_kitchen, last_time_sensor_check, motion_value, lights_on, stove_aborted
+        global stove_turned_on, stove_turned_on_timestamp, user_in_kitchen, lights_on, stove_aborted
         # Check if stove has been on for more than 20 minutes and user is not in kitchen
         if stove_turned_on == True:
             if (time.time() - stove_turned_on_timestamp > STOVE_TURN_OFF_TIME and user_in_kitchen == False):
@@ -103,13 +133,25 @@ class kgz2m:
             ctl.stove_status(data)
 
         if msg.topic == MOTION_TOPIC_1:
-            #if data["occupancy"] == "true":
-                ctl.kitchen_location()
+            if data["occupancy"] == True:
+                ctl.user_location(1)
 
         if msg.topic == MOTION_TOPIC_2:
-            #if data["occupancy"] == "true":
-                ctl.room1_location()
+            if data["occupancy"] == True:
+                ctl.user_location(2)
+
+        if msg.topic == MOTION_TOPIC_3:
+            if data["occupancy"] == True:
+                ctl.user_location(3)
         
+        if msg.topic == MOTION_TOPIC_4:
+            if data["occupancy"] == True:
+                ctl.user_location(4)
+
+        if msg.topic == MOTION_TOPIC_5:
+            if data["occupancy"] == True:
+                ctl.user_location(5)
+
         ctl.safety_controller()
 
 
@@ -118,10 +160,11 @@ class kgz2m:
     client.username_pw_set("pi", "raspberry")
     client.on_connect = on_connect
     client.on_message = on_message
-    client.connect("raspberrypi.local", 1883, 60)
 
-    # Start MQTT client loop
-    client.loop_forever()
+    def start():
+        # Start MQTT client loop
+        client.connect("raspberrypi.local", 1883, 60)
+        client.loop_forever()
 
 
 
