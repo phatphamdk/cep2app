@@ -41,6 +41,7 @@ client = mqtt.Client()
 
 class KitchenGuardController:
 
+    # This function determines whether or not the stove is turned on, and notes the time when it is turned on
     def stove_status(data):
         global stove_turned_on, stove_turned_on_timestamp, stove_aborted
         
@@ -51,10 +52,10 @@ class KitchenGuardController:
                 print("Stove turned on")
                 
 
-
+    # This function determines where the user is located. 
     def user_location(room):
         global user_in_kitchen, user_in_room1, user_in_room2, user_in_room3, user_in_room4, stove_turned_on_timestamp, last_seen_in_kitchen
-        Events.StoveOnEvent()
+        
         if room == 1:
             user_in_room1 = True
             user_in_room2 = False
@@ -95,10 +96,11 @@ class KitchenGuardController:
             user_in_kitchen = True
 
             print("User in kitchen")
+            # The timestamp of when the user is last seen in the kitchen is updated.
             last_seen_in_kitchen = time.time()
 
 
-    # client, userdata
+    #This function determines whether or not the stove must be turned off, and the lights turned on or off
     def safety_controller():
         global stove_turned_on, stove_turned_on_timestamp, user_in_kitchen, light_on, light_on_1, light_on_2, light_on_3, light_on_4,stove_aborted
         # Check if stove has been on for more than 20 minutes and user is not in kitchen
@@ -124,6 +126,7 @@ class KitchenGuardController:
                 print("Stove on and user away for more than 20 minutes, stove turned off")
                 time.sleep(10)
         
+        # Turn off lights if user has returned to kitchen.
         if user_in_kitchen and light_on == True:
             if user_in_room1:
                 client.publish(LED_TOPIC_1, '{"state": "OFF"}')
@@ -156,7 +159,7 @@ class KitchenGuardZ2M:
         client.publish(POWERPLUG_TOPIC, '{"state": "ON"}')
 
 
-
+    # Handle MQTT message received by called other functions depending on which message is received.
     def on_message(client, userdata, msg):
         
         data = json.loads(msg.payload)
@@ -184,11 +187,11 @@ class KitchenGuardZ2M:
             if data["occupancy"] == True:
                 KitchenGuardController.user_location(5)
 
+        # Call safety_controller function each time a message is received. 
         KitchenGuardController.safety_controller()
 
 
     # MQTT client setup
-
     client.username_pw_set("pi", "raspberry")
     client.on_connect = on_connect
     client.on_message = on_message
