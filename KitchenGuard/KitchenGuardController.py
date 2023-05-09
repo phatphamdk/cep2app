@@ -6,18 +6,15 @@ from KitchenGuardWebClient import Events
 # MQTT topics for powerplug and LED light
 POWERPLUG_TOPIC = "zigbee2mqtt/StorPowerPlug/set"
 POWERPLUG_STATE_TOPIC = "zigbee2mqtt/StorPowerPlug"
-LED_TOPIC_1 = "zigbee2mqtt/Lampe/set" #ændre til rigtig
-LED_TOPIC_2 = "zigbee2mqtt/Lampe/set"#ændre til rigtig
-LED_TOPIC_3 = "zigbee2mqtt/Lampe/set"#ændre til rigtig
-LED_TOPIC_4 = "zigbee2mqtt/Lampe/set"#ændre til rigtig
-MOTION_TOPIC_1 = "zigbee2mqtt/MotionSensor2"#ændre til rigtig
-MOTION_TOPIC_2 = "zigbee2mqtt/MotionSensor"#ændre til rigtig
+LED_TOPIC_1 = "zigbee2mqtt/Lampe1/set" #ændre til rigtig
+LED_TOPIC_2 = "zigbee2mqtt/Lampe2/set"#ændre til rigtig
+LED_TOPIC_3 = "zigbee2mqtt/Lampe3/set"#ændre til rigtig
+LED_TOPIC_4 = "zigbee2mqtt/Lampe4/set"#ændre til rigtig
+MOTION_TOPIC_1 = "zigbee2mqtt/MotionSensor1"#ændre til rigtig
+MOTION_TOPIC_2 = "zigbee2mqtt/MotionSensor2"#ændre til rigtig
 MOTION_TOPIC_3 = "zigbee2mqtt/MotionSensor3"#ændre til rigtig
 MOTION_TOPIC_4 = "zigbee2mqtt/MotionSensor4"#ændre til rigtig
 MOTION_TOPIC_KITCHEN = "zigbee2mqtt/MotionSensorKitchen"#ændre til rigtig
-
-# Constants for motion sensor
-MOTION_ILLUMINANCE_THRESHOLD = 50
 
 # Constants for stove turn off timer
 STOVE_TURN_OFF_TIME = 15 # in seconds, 20 minutes=1200
@@ -31,13 +28,13 @@ user_in_room1 = False
 user_in_room2 = False
 user_in_room3 = False
 user_in_room4 = False
-lights_on_1 = False
-lights_on_2 = False
-lights_on_3 = False
-lights_on_4 = False
+light_on = False
+light_on_1 = False
+light_on_2 = False
+light_on_3 = False
+light_on_4 = False
 stove_aborted = False
 last_seen_in_kitchen = 0
-
 
 
 client = mqtt.Client()
@@ -103,7 +100,7 @@ class ctl:
 
     # client, userdata
     def safety_controller():
-        global stove_turned_on, stove_turned_on_timestamp, user_in_kitchen, lights_on, stove_aborted
+        global stove_turned_on, stove_turned_on_timestamp, user_in_kitchen, light_on, light_on_1, light_on_2, light_on_3, light_on_4,stove_aborted
         # Check if stove has been on for more than 20 minutes and user is not in kitchen
         if stove_turned_on == True:
             if (time.time() - last_seen_in_kitchen > STOVE_TURN_OFF_TIME and user_in_kitchen == False):
@@ -112,20 +109,36 @@ class ctl:
                 client.publish(POWERPLUG_TOPIC, '{"state": "OFF"}')
                 if user_in_room1:
                     client.publish(LED_TOPIC_1, '{"state": "ON"}')
+                    light_on_1 = True
                 elif user_in_room2:  
                     client.publish(LED_TOPIC_2, '{"state": "ON"}')
+                    light_on_2 = True
                 elif user_in_room3:  
                     client.publish(LED_TOPIC_3, '{"state": "ON"}')
+                    light_on_3 = True
                 elif user_in_room4:  
                     client.publish(LED_TOPIC_4, '{"state": "ON"}')
+                    light_on_4 = True
                 stove_turned_on = False
-                lights_on = True
+                light_on = True
                 print("Stove on and user away for more than 20 minutes, stove turned off")
                 time.sleep(10)
         
-        if user_in_kitchen and lights_on_1 == True:
-            client.publish(LED_TOPIC_1, '{"state": "OFF"}')
-            lights_on = False
+        if user_in_kitchen and light_on == True:
+            if user_in_room1:
+                client.publish(LED_TOPIC_1, '{"state": "OFF"}')
+                light_on_1 = False
+            elif user_in_room2:  
+                client.publish(LED_TOPIC_2, '{"state": "OFF"}')
+                light_on_2 = False
+            elif user_in_room3:  
+                client.publish(LED_TOPIC_3, '{"state": "OFF"}')
+                light_on_3 = False
+            elif user_in_room4:  
+                client.publish(LED_TOPIC_4, '{"state": "OFF"}')
+                light_on_4 = False
+
+            light_on = False
             print("User back in kitchen and lights disabled")
 
 class kgz2m:
