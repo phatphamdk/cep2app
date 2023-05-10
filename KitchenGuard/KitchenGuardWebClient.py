@@ -24,24 +24,22 @@ class WebClient:
 
         return client
 
-    def publishTest(client, topic: str):
-        msg_count = 0
-        while True:
-            time.sleep(5)
+    def publishEvent(client, type: str, location: str):
 
-            event = HeucodEvent()
+        topic = "zigbee2mqtt/events"    
+        event = HeucodEvent()
 
-            event.event_type = "KG.TestTypeEvent"
-            event.sensor_location = "Kitchen"
-            event.timestamp = datetime.now(tz=timezone.utc)
+        event.event_type = type
+        event.sensor_location = location
+        event.timestamp = datetime.now(tz=timezone.utc)
 
-            result = client.publish(topic, event.to_json())
+        result = client.publish(topic, event.to_json())
 
-            status = result[0]
-            if status == 0:
-                print(f"Sent event to topic `{topic}`")
-            else:
-                print(f"Failed to send message to topic {topic}")
+        status = result[0]
+        if status == 0:
+            print(f"Sent event to topic `{topic}`")
+        else:
+            print(f"Failed to send message to topic {topic}")
 
 
     def subscribeToEvents(client: mqtt_client, topic: str):

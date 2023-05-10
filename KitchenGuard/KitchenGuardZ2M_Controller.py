@@ -1,7 +1,7 @@
 import time
 import paho.mqtt.client as mqtt
 import json
-from KitchenGuardWebClient import Events
+from KitchenGuardWebClient import WebClient
 
 # MQTT topics for powerplug and LED light
 POWERPLUG_TOPIC = "zigbee2mqtt/StorPowerPlug/set"
@@ -49,6 +49,7 @@ class KitchenGuardController:
             if data["power"] > POWER_THRESHOLD and stove_turned_on == False:
                 stove_turned_on = True
                 stove_turned_on_timestamp = time.time()
+                WebClient.publishEvent(client, "KG.StoveTurnedOn", "Kitchen")
                 print("Stove turned on")
                 
 
@@ -161,6 +162,8 @@ class KitchenGuardZ2M:
 
     # Handle MQTT message received by called other functions depending on which message is received.
     def on_message(client, userdata, msg):
+
+        WebClient.publishEvent(client, "KG.StoveTurnedOn", "Kitchen")
         
         data = json.loads(msg.payload)
 
