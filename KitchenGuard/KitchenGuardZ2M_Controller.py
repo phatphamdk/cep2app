@@ -63,6 +63,7 @@ class KitchenGuardController:
             user_in_room3 = False
             user_in_room4 = False
             user_in_kitchen = False
+            WebClient.publishEvent(client, "KG.UserInRoom1", "Room 1")
             print("User in Room 1")
 
         if room == 2:
@@ -72,6 +73,7 @@ class KitchenGuardController:
             user_in_room4 = False
             user_in_kitchen = False
             print("User in Room 2")
+            WebClient.publishEvent(client, "KG.UserInRoom2", "Room 2")
 
         if room == 3:
             user_in_room1 = False
@@ -80,6 +82,7 @@ class KitchenGuardController:
             user_in_room4 = False
             user_in_kitchen = False
             print("User in Room 3")
+            WebClient.publishEvent(client, "KG.UserInRoom3", "Room 3")
 
         if room == 4:
             user_in_room1 = False
@@ -88,6 +91,7 @@ class KitchenGuardController:
             user_in_room4 = True
             user_in_kitchen = False
             print("User in Room 4")
+            WebClient.publishEvent(client, "KG.UserInRoom4", "Room 4")
 
         if room == 5:
             user_in_room1 = False
@@ -97,6 +101,7 @@ class KitchenGuardController:
             user_in_kitchen = True
 
             print("User in kitchen")
+            WebClient.publishEvent(client, "KG.UserInKitchen", "Kitchen")
             # The timestamp of when the user is last seen in the kitchen is updated.
             last_seen_in_kitchen = time.time()
 
@@ -110,18 +115,23 @@ class KitchenGuardController:
                 # Turn off stove and turn on LED light
                 stove_aborted = True
                 client.publish(POWERPLUG_TOPIC, '{"state": "OFF"}')
+                WebClient.publishEvent(client, "KG.StoveAbandoned", "Kitchen")
                 if user_in_room1:
                     client.publish(LED_TOPIC_1, '{"state": "ON"}')
                     light_on_1 = True
+                    WebClient.publishEvent(client, "KG.LightOnRoom1", "Room 1")
                 elif user_in_room2:  
                     client.publish(LED_TOPIC_2, '{"state": "ON"}')
                     light_on_2 = True
+                    WebClient.publishEvent(client, "KG.LightOnRoom2", "Room 2")
                 elif user_in_room3:  
                     client.publish(LED_TOPIC_3, '{"state": "ON"}')
                     light_on_3 = True
+                    WebClient.publishEvent(client, "KG.LightOnRoom3", "Room 3")
                 elif user_in_room4:  
                     client.publish(LED_TOPIC_4, '{"state": "ON"}')
                     light_on_4 = True
+                    WebClient.publishEvent(client, "KG.LightOnRoom4", "Room 4")
                 stove_turned_on = False
                 light_on = True
                 print("Stove on and user away for more than 20 minutes, stove turned off")
@@ -129,18 +139,23 @@ class KitchenGuardController:
         
         # Turn off lights if user has returned to kitchen.
         if user_in_kitchen and light_on == True:
+            WebClient.publishEvent(client, "KG.UserReturnedToKitchen", "Kitchen")
             if user_in_room1:
                 client.publish(LED_TOPIC_1, '{"state": "OFF"}')
                 light_on_1 = False
+                WebClient.publishEvent(client, "KG.LightOffRoom1", "Room 1")
             elif user_in_room2:  
                 client.publish(LED_TOPIC_2, '{"state": "OFF"}')
                 light_on_2 = False
+                WebClient.publishEvent(client, "KG.LightOffRoom2", "Room 2")
             elif user_in_room3:  
                 client.publish(LED_TOPIC_3, '{"state": "OFF"}')
                 light_on_3 = False
+                WebClient.publishEvent(client, "KG.LightOffRoom3", "Room 3")
             elif user_in_room4:  
                 client.publish(LED_TOPIC_4, '{"state": "OFF"}')
                 light_on_4 = False
+                WebClient.publishEvent(client, "KG.LightOffRoom4", "Room 4")
 
             light_on = False
             print("User back in kitchen and lights disabled")
@@ -162,8 +177,6 @@ class KitchenGuardZ2M:
 
     # Handle MQTT message received by called other functions depending on which message is received.
     def on_message(client, userdata, msg):
-
-        WebClient.publishEvent(client, "KG.StoveTurnedOn", "Kitchen")
         
         data = json.loads(msg.payload)
 
