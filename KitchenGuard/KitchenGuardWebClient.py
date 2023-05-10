@@ -80,7 +80,6 @@ class WebClient:
         
     def run():
         client = WebClient.connect_mqtt()
-        WebClient.publishTest(client, "zigbee2mqtt/events")
 
 
     #if __name__ == '__main__':
