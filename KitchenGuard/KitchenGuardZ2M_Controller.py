@@ -6,15 +6,15 @@ from KitchenGuardWebClient import WebClient
 # MQTT topics for powerplug and LED light
 POWERPLUG_TOPIC = "zigbee2mqtt/StorPowerPlug/set"
 POWERPLUG_STATE_TOPIC = "zigbee2mqtt/StorPowerPlug"
-LED_TOPIC_1 = "zigbee2mqtt/Lampe1/set" #ændre til rigtig
-LED_TOPIC_2 = "zigbee2mqtt/Lampe2/set"#ændre til rigtig
-LED_TOPIC_3 = "zigbee2mqtt/Lampe3/set"#ændre til rigtig
-LED_TOPIC_4 = "zigbee2mqtt/Lampe4/set"#ændre til rigtig
-MOTION_TOPIC_1 = "zigbee2mqtt/MotionSensor1"#ændre til rigtig
-MOTION_TOPIC_2 = "zigbee2mqtt/MotionSensor2"#ændre til rigtig
-MOTION_TOPIC_3 = "zigbee2mqtt/MotionSensor10"#ændre til rigtig
-MOTION_TOPIC_4 = "zigbee2mqtt/MotionSensor4"#ændre til rigtig
-MOTION_TOPIC_KITCHEN = "zigbee2mqtt/MotionSensor3"#ændre til rigtig
+LED_TOPIC_1 = "zigbee2mqtt/Lampe1/set" 
+LED_TOPIC_2 = "zigbee2mqtt/Lampe2/set"
+LED_TOPIC_3 = "zigbee2mqtt/Lampe3/set"
+LED_TOPIC_4 = "zigbee2mqtt/Lampe4/set"
+MOTION_TOPIC_1 = "zigbee2mqtt/MotionSensor1"
+MOTION_TOPIC_2 = "zigbee2mqtt/MotionSensor2"
+MOTION_TOPIC_3 = "zigbee2mqtt/MotionSensor3"
+MOTION_TOPIC_4 = "zigbee2mqtt/MotionSensor4"
+MOTION_TOPIC_KITCHEN = "zigbee2mqtt/MotionSensorKitchen"
 
 # Constants for stove turn off timer
 STOVE_TURN_OFF_TIME = 1200 # in seconds, 20 minutes=1200
@@ -223,9 +223,6 @@ class KitchenGuardZ2M:
         if msg.topic == MOTION_TOPIC_KITCHEN:
             if data["occupancy"] == True:
                 KitchenGuardController.user_location(5)
-
-        # Call safety_controller function each time a message is received. 
-        #KitchenGuardController.safety_controller()
 
 
     # MQTT client setup

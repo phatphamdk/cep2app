@@ -80,8 +80,3 @@ class WebClient:
         
     def run():
         client = WebClient.connect_mqtt()
-
-
-    #if __name__ == '__main__':
-        #run()
-
