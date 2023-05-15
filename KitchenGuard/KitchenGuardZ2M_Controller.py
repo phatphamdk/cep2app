@@ -17,7 +17,7 @@ MOTION_TOPIC_4 = "zigbee2mqtt/MotionSensor4"#ændre til rigtig
 MOTION_TOPIC_KITCHEN = "zigbee2mqtt/MotionSensor3"#ændre til rigtig
 
 # Constants for stove turn off timer
-STOVE_TURN_OFF_TIME = 30 # in seconds, 20 minutes=1200
+STOVE_TURN_OFF_TIME = 1200 # in seconds, 20 minutes=1200
 POWER_THRESHOLD = 10 # in watts
 
 # Global variables
@@ -44,6 +44,14 @@ class KitchenGuardController:
     # This function determines whether or not the stove is turned on, and notes the time when it is turned on
     def stove_status(data):
         global stove_turned_on, stove_turned_on_timestamp, stove_aborted, last_seen_in_kitchen
+   
+   
+        if stove_turned_on == True:
+            if data["power"] < POWER_THRESHOLD:
+                stove_turned_on = False
+                WebClient.publishEvent(client, "KG.StoveTurnedOff", "Kitchen")
+                print("Stove turned off")
+
         
         if stove_aborted == False:
             if data["power"] > POWER_THRESHOLD and stove_turned_on == False:
@@ -99,6 +107,7 @@ class KitchenGuardController:
                 WebClient.publishEvent(client, "KG.UserInRoom4", "Room 4")
 
         if room == 5:
+            last_seen_in_kitchen = time.time()
             if user_in_kitchen == False:
                 user_in_room1 = False
                 user_in_room2 = False
@@ -109,7 +118,7 @@ class KitchenGuardController:
                 print("User in kitchen")
                 WebClient.publishEvent(client, "KG.UserInKitchen", "Kitchen")
                 # The timestamp of when the user is last seen in the kitchen is updated.
-                last_seen_in_kitchen = time.time()
+                
 
 
     #This function determines whether or not the stove must be turned off, and the lights turned on or off
