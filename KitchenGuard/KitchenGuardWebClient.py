@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 
 class WebClient:
 
+    # Connect the mqtt client to the raspberry pi mqtt broker
     def connect_mqtt() -> mqtt_client:
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
@@ -24,6 +25,7 @@ class WebClient:
 
         return client
 
+    # Publish HEUCOD event to the proper topic
     def publishEvent(client, type: str, location: str):
 
         topic = "zigbee2mqtt/events"    
@@ -31,6 +33,7 @@ class WebClient:
 
         event.event_type = type
         event.sensor_location = location
+        # Set timestamp to current time
         event.timestamp = datetime.now(tz=timezone.utc)
 
         result = client.publish(topic, event.to_json())
@@ -41,7 +44,7 @@ class WebClient:
         else:
             print(f"Failed to send message to topic {topic}")
 
-
+    # Subscribe to events
     def subscribeToEvents(client: mqtt_client, topic: str):
         def on_message(client, userdata, msg):
             payloadJsonString = msg.payload.decode()
@@ -77,6 +80,6 @@ class WebClient:
         client.subscribe(topic)
         client.on_message = on_message
 
-        
+    # Called by the main function
     def run():
         client = WebClient.connect_mqtt()
