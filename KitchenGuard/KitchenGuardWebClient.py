@@ -5,6 +5,8 @@ import json
 from heucod import HeucodEvent
 from datetime import datetime, timezone
 
+# Credit to Jorge Miranda for inspiration as well as bits of borrowed code from the tutorials provided in the course
+
 # Sources of original code from this file:
 # https://www.emqx.com/en/blog/how-to-use-mqtt-in-python
 # https://pynative.com/python-mysql-database-connection/
