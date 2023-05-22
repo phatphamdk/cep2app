@@ -5,6 +5,11 @@ import json
 from heucod import HeucodEvent
 from datetime import datetime, timezone
 
+# Sources of original code from this file:
+# https://www.emqx.com/en/blog/how-to-use-mqtt-in-python
+# https://pynative.com/python-mysql-database-connection/
+# We have also reused the HEUCOD class code that was supplied in tutorial 9
+
 class WebClient:
 
     # Connect the mqtt client to the raspberry pi mqtt broker
