@@ -3,6 +3,8 @@ from KitchenGuardWebClient import WebClient
 from threading import Thread
 import time
 
+# Credit to Jorge Miranda for inspiration as well as bits of borrowed code from the tutorials provided in the course
+
 # This function calls the safety_controller function once every five seconds
 def check():
     while True:
