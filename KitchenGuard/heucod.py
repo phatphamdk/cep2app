@@ -8,6 +8,7 @@ from enum import Enum
 from typing import Any, Union
 from uuid import UUID
 
+# This HEUCOD class code was supplied in tutorial 9, and not made by Group 4
 
 class HeucodEventType(Enum):
     def __new__(cls, type_: int, description: str):
