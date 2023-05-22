@@ -3,6 +3,8 @@ import paho.mqtt.client as mqtt
 import json
 from KitchenGuardWebClient import WebClient
 
+# Credit to Jorge Miranda for inspiration as well as bits of borrowed code from the tutorials provided in the course
+
 # MQTT topics for power plug, motion sensors and LED lights
 POWERPLUG_TOPIC = "zigbee2mqtt/StorPowerPlug/set"
 POWERPLUG_STATE_TOPIC = "zigbee2mqtt/StorPowerPlug"
